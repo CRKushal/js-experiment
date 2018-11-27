@@ -43,5 +43,6 @@ function forChildren(obj, output) {
   }
   return output;
 }
+
 var output = toNormalize(people);
 console.log(output);

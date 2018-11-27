@@ -1,4 +1,4 @@
-var arr = [[1, [1, 2], 2, 3], [2, 4, 5], 6];
+var arr = [[1, 2, 3], [2, 4, 5], 6];
 
 function flatten(arr) {
   var array = [];
@@ -13,7 +13,7 @@ function flatten(arr) {
   return array;
 }
 
-let flattenArray = flatten(arr);
+var flattenArray = flatten(arr);
 console.log(flattenArray);
 
 // alternative
