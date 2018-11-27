@@ -4,13 +4,15 @@ var fruits = [
 ];
 
 function serachByName(fruits, name) {
-  fruits.find(function (fruit) {
+  let newFruit = fruits.find(function (fruit) {
     if (fruit.name.toLowerCase() == name.toLowerCase()) {
-      console.log(fruit)
+      return fruit;
     }
   });
+  return newFruit;
 }
-serachByName(fruits, 'apple');
+let searched = serachByName(fruits, 'apple');
+console.log(searched);
 
 // alternative way
 
