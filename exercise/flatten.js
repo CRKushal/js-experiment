@@ -1,24 +1,24 @@
 var arr = [[1, 2, 3], [2, 4, 5], 6];
 
-function flatten(arr) {
-  var array = [];
-  while (arr.length) {
-    var value = arr.shift();
-    if (Array.isArray(value)) {
-      arr = value.concat(arr);
-    } else {
-      array.push(value);
-    }
+var outPut = arr.reduce(function (acc, curr) {
+  if (Array.isArray(curr)) {
+    curr.forEach(function (item) {
+      if (acc.indexOf(item) == -1) {
+        acc.push(item)
+      };
+    });
+  } else if (acc.indexOf(curr) == -1) {
+    acc.push(curr);
   }
-  return array;
-}
+  return acc;
+}, []);
 
-var flattenArray = flatten(arr);
-console.log(flattenArray);
+console.log(outPut);
 
-// alternative
+// alternative to flatten only
 
 // var myNewArray = arr.reduce(function (prev, curr) {
-//     return prev.concat(curr);
+//   return prev.concat(curr);
 // });
 // console.log(myNewArray);
+
