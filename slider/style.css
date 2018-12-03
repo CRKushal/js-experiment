@@ -1,0 +1,31 @@
+.slider-wrapper{
+    position: relative;
+    width: 800px;
+    height: 500px;
+    overflow: hidden;
+}
+#slider-container{
+    position:absolute;
+    width: 800000000px;
+    height: 500px;
+}
+#slider-container img{
+    width: 800px;
+    height: 500px;
+    display: block;
+    float: left;
+}
+.pagination ul{
+    list-style-type: none;
+}
+.pagination ul li{
+    display: inline-block;
+    text-decoration: none;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border:1px solid purple;
+}
+.active{
+    background: purple;
+}
