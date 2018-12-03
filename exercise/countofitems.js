@@ -10,4 +10,3 @@ var countedNames = names.reduce(function (acc, val) {
 }, {});
 
 console.log(countedNames);
-// console.log(Array.isArray(names));
