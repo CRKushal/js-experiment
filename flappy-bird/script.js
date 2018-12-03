@@ -1,4 +1,16 @@
 var pipes = [];
+var score = 0;
+var gameOverMenu;
+var startGameMenu;
+
+/*
+*======================================================================================================================
+*bird class
+*generates bird
+*move bird 
+*check collison of bird with the pipes and count scores
+* ======================================================================================================================
+*/
 
 class Bird {
     constructor(context, birdImage, birdX, birdY, canvas) {
@@ -19,27 +31,11 @@ class Bird {
         var that = this;
         document.body.onkeyup = function (e) {
             if (e.keyCode == 32) {
-                console.log(that.birdY)
                 that.birdY -= 40;
             }
         }
     }
 
-    detectCollison() {
-        if (this.birdY == this.canvas.clientHeight - 118) {
-            console.log('collison')
-        } else if (this.birdY == 0) {
-            console.log('collided');
-        }
-
-        pipes.forEach(pipe => {
-            if (this.birdX == pipe.x) {
-                console.log('collison')
-            } else if (this.birdY == pipe.height) {
-                console.log('a');
-            }
-        });
-    }
 }
 
 
@@ -52,33 +48,33 @@ class Pipe {
         this.pipesPos = pipesPos;
         this.interval = 50;
         this.canvas = canvas;
-        console.log(this.canvas.clientWidth);
     }
 
     draw() {
         for (let i = 0; i < pipes.length; i++) {
             this.context.drawImage(this.pipeNorth, pipes[i].x, pipes[i].y);
             this.context.drawImage(this.pipeSouth, pipes[i].x, pipes[i].y + (this.pipeNorth.height + 85));
-            pipes[i].x--;
-
-            if (pipes[i].x == this.interval) {
-                pipes.push({
-                    x: this.canvas.clientWidth,
-                    y: Math.floor((Math.random() * this.pipeNorth.height) - this.pipeNorth.height)
-                });
-            } else if (pipes[i].x + pipes[i].width < 0) {
-                pipes.splice(0, 1);
-            }
+            this.update(i);
         }
     }
 
-    update() {
+    update(i) {
 
+        pipes[i].x--;
+        if (pipes[i].x == this.interval) {
+            pipes.push({
+                x: this.canvas.clientWidth,
+                y: Math.floor((Math.random() * this.pipeNorth.height) - this.pipeNorth.height)
+            });
+        } else if (pipes[i].x + pipes[i].width < 0) {
+            pipes.splice(0, 1);
+        }
     }
 }
 
 
 class Game {
+
     constructor() {
         this.canvas = document.getElementById('game-screen');
         this.context = this.canvas.getContext('2d');
@@ -89,10 +85,23 @@ class Game {
         this.pipeNorthImage;
         this.pipeSouthImage;
         this.ground;
+        this.gameOver = false;
+        this.gameOn;
         this.startGame();
     }
 
-    startGame() { this.drawImages(); }
+    startGame() {
+        this.gameOver = false;
+        this.drawImages();
+        // startGameMenu = document.getElementById('gameStart');
+        // var playGameButton = document.getElementById('play-game');
+        // var that = this;
+        // playGameButton.addEventListener('click', function () {
+        //     console.log('a')
+        //     startGameMenu.style.visibility = "hidden";
+
+        // });
+    }
 
     async drawImages() {
         this.background = await this.loadImages('./images/background.png');
@@ -101,7 +110,7 @@ class Game {
         this.pipeNorthImage = await this.loadImages('./images/pipeNorth.png');
         this.pipeSouthImage = await this.loadImages('./images/pipeSouth.png');
 
-        let bird = new Bird(this.context, this.birdImage, this.birdX, this.birdY, this.canvas);
+        let bird = new Bird(this.context, this.birdImage, this.birdX, this.birdY);
 
         pipes[0] = {
             x: this.canvas.clientWidth,
@@ -109,18 +118,21 @@ class Game {
         }
 
         let pipe = new Pipe(this.context, this.pipeNorthImage, this.pipeSouthImage, pipes[0], this.canvas);
-        this.update(pipe, bird);
+        if (this.gameOver == false) {
+            this.update(pipe, bird);
+        } else {
+            clearInterval(this.gameOn)
+        }
     }
 
     update(pipe, bird) {
-        setInterval(() => {
+        this.gameOn = setInterval(() => {
             this.context.drawImage(this.background, 0, 0, this.canvas.clientWidth, this.canvas.clientHeight);
             pipe.draw();
             this.context.drawImage(this.ground, 0, this.canvas.clientHeight - this.ground.height);
             bird.draw();
             bird.update();
-            pipe.update();
-            bird.detectCollison();
+            this.detectCollison();
         }, 10);
     }
 
@@ -131,6 +143,39 @@ class Game {
                 resolve(image);
             });
             image.src = url;
+        });
+    }
+
+    detectCollison() {
+        pipes.forEach(pipe => {
+            if (this.birdX + this.birdImage.width >= pipe.x &&
+                this.birdX <= pipe.x + this.pipeNorthImage.width &&
+                (this.birdY <= pipe.y + this.pipeNorthImage.height || this.birdY + this.birdImage.height >= pipe.y + 85)
+                || this.birdY + this.birdImage.height >= this.canvas.clientHeight - 118
+                || this.birdY == 0) {
+
+                this.gameOver = true;
+                this.gameOverMenuDisplay();
+            }
+            if (pipe.x == 5) {
+                score++;
+            }
+        });
+        this.context.fillStyle = "#000";
+        this.context.font = "40px;";
+        this.context.fillText("Score:" + score, 10, this.canvas.clientHeight - 20);
+
+    }
+
+    gameOverMenuDisplay() {
+        gameOverMenu = document.getElementById('gameOver');
+        gameOverMenu.style.visibility = "visible";
+        var restart = document.getElementById('restart');
+        var scoreDisplay = document.getElementById('score');
+        scoreDisplay.innerHTML = 'Score: ' + score;
+
+        restart.addEventListener('click', function () {
+            location.reload();
         });
     }
 }
