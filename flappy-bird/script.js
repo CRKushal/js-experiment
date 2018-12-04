@@ -3,6 +3,8 @@ var score = 0;
 var gameOverMenu;
 var startGameMenu;
 var constant = 100;
+var gravity = 0.1;
+
 /*
 *======================================================================================================================
 *bird class
@@ -24,12 +26,12 @@ class Bird {
     }
 
     update() {
-        var gravity = 1;
+        gravity += 0.05;
         this.birdY += gravity;
         var that = this;
-        document.body.onkeyup = function (e) {
+        document.body.onkeyup = e => {
             if (e.keyCode == 32) {
-                that.birdY -= 40;
+                (!(gravity > -2)) ? gravity -= 2 : gravity = -2;
             }
         }
     }
@@ -98,6 +100,7 @@ class Game {
         this.birdY = randomGenerator(125, 275);
         this.background;
         this.birdImage;
+        this.sound;
         this.pipeNorthImage;
         this.pipeSouthImage;
         this.ground;
@@ -118,6 +121,7 @@ class Game {
         this.birdImage = await this.loadImages('./images/flappy.png');
         this.pipeNorthImage = await this.loadImages('./images/pipeNorth.png');
         this.pipeSouthImage = await this.loadImages('./images/pipeSouth.png');
+        this.sound = await document.getElementById('myAudio');
 
         this.bird = new Bird(this.context, this.birdImage, this.birdX, this.birdY);
 
@@ -169,6 +173,7 @@ class Game {
             }
             if (pipe.x + this.pipeNorthImage.width == this.birdX) {
                 score++;
+                this.sound.play();
             }
 
         });
