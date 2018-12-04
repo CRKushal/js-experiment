@@ -10,7 +10,7 @@
     color: white;
     transition: all 3s 1s;
 }
-#restart,{
+#restart{
     font-size: 23px;
     border: 1px solid #ccc;
     border-radius: 5px;
