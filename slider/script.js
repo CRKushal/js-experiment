@@ -1,128 +1,91 @@
-var slide = document.getElementById('slider-container');
-var next = document.getElementById('next');
-var previous = document.getElementById('previous');
-var dots = document.getElementsByTagName('li');
+function Wrapper(containerId, timer) {
+    var container = document.getElementById(containerId);
+    var slider = document.getElementById('image-container');
+    var images = document.getElementsByTagName('img');
+    var next = document.getElementById('next');
+    var previous = document.getElementById('previous');
+    var dots = document.getElementsByClassName('dots');
 
-var x = 0;
-var speed = 2;
-var flag = false;
-var newSpeed = 5;
+    var width = container.clientWidth;
+    var height = container.clientHeight;
 
-var running;
-var eachInterval;
-var timeOut;
+    slider.style.width = width * images.length + 'px';
+    slider.style.height = height;
 
-function run() {
-    running = setInterval(update, 10);
-}
-function update() {
-    slide.style.left = -x + 'px';
-    x += speed;
-    if (x == 0 || x == 800) {
-        if (x == 0) {
-            speed = 2;
+    var mainInterval;
+    var initialPos = 0;
+    var speed = 1;
+    var direction = -1;
+    var index = 0;
+    var way = 1;
+    var pause;
+    var clickedSpeed = 3;
+    var nextInterval;
+    var previousInterval;
+
+    start();
+
+    function start() {
+        mainInterval = setInterval(slide, timer);
+    }
+
+    function slide() {
+        changeDotsColor();
+        slider.style.left = initialPos + 'px';
+        if (initialPos == 0) {
+            direction = -1;
+            way = 1;
+        } else if (initialPos == ((images.length - 1) * width * direction)) {
+            direction = 1;
+            way = -1;
         }
-        clearInterval(running);
-        timeOut = setTimeout(run, 2000);
-    } else if (x == 1600) {
-        speed = -2;
-        clearInterval(running);
-        timeOut = setTimeout(run, 2000);
-    }
-}
-
-next.addEventListener('click', function () {
-    clearInterval(running);
-    clearInterval(nextInterval);
-    clearInterval(timeOut);
-    if ((x >= 0 && x <= 800) || (x >= 800 && x < 1600)) {
-        console.log(x);
-        var nextInterval = setInterval(function () {
-            slide.style.left = -x + 'px';
-            x += speed;
-            if (x == 800 || x == 1600) {
-                clearInterval(nextInterval);
-                setTimeout(run, 2000);
-                if (x == 1600) speed = -2;
+        if ((initialPos == index * width * direction) || (initialPos == -(index * width * direction))) {
+            //(initialPos == 0 || initialPos == 800 || initialPos == 1600) || (initialPos == 0 || initialPos == -800 || initialPos == -1600)
+            clearInterval(mainInterval);
+            clearInterval(nextInterval);
+            clearInterval(previousInterval);
+            pause = setTimeout(start, 2000);
+            if (direction == -1) {
+                index++
+            } else {
+                index--;
             }
-        });
-    } else {
-        console.log('hello world');
+        }
+        initialPos += speed * direction;
     }
-});
+
+    next.addEventListener('click', function () {
+        if (way == -1) {
+            way = 1;
+            direction = -1;
+            index++;
+        }
+        clearInterval(mainInterval);
+        clearTimeout(pause);
+        clearInterval(nextInterval);
+        nextInterval = setInterval(slide)
+    });
+
+    previous.addEventListener('click', function () {
+        if (way == 1) {
+            way = -1;
+            direction = 1;
+            index--;
+        }
+        clearInterval(mainInterval);
+        clearTimeout(pause);
+        clearInterval(previousInterval);
+        previousInterval = setInterval(slide)
+    });
 
 
-previous.addEventListener('click', function () {
-    previousSlide();
-});
-
-
-// function nextSlide() {
-//     clearInterval(running);
-//     eachInterval = setInterval(function () {
-//         slide.style.left = -x + 'px';
-//         x += newSpeed;
-//     });
-//     while (x === 800) {
-//         clearInterval(eachInterval);
-//         setTimeout(run, 2000);
-//     }
-
-// }
-function previousSlide() {
-    speed = -2;
-    // if (x <= 2400 && x >= 1600) {
-    //     x = 800 + speed;
-    //     slide.style.left = -x + 'px';
-    // } else if (x <= 1600 && x >= 800) {
-    //     x = 0;
-    //     slide.style.left = -x + 'px';
-    // }
+    function changeDotsColor() {
+        for (let i = 0; i < dots.length; i++) {
+            if ((initialPos == i * width * direction * way)) {
+                dots[i].classList.add('active');
+            }
+            dots[i].classList.remove('acitve');
+        }
+    }
 }
-
-run();
-
-// function Slider() {
-//     var slide = document.getElementById('slider-container');
-//     var next = document.getElementById('next');
-
-//     var x = 0;
-//     var speed = 2;
-//     var flag = false;
-
-//     function run() {
-//         running = setInterval(show, 10);
-//     }
-//     function show() {
-//         slide.style.left = -x + 'px';
-//         x += speed;
-//         if (x == 0 || x == 800) {
-//             if (x == 0) {
-//                 speed = 2;
-//             }
-//             clearInterval(running);
-//             setTimeout(run, 2000);
-//         } else if (x == 1600) {
-//             clearInterval(running);
-//             speed = -2;
-//             setTimeout(run, 2000);
-//         }
-//     }
-//     next.addEventListener('click', function () {
-//         changeSlide();
-//     });
-
-//     function changeSlide() {
-//         if (x >= 0 && x < 800) {
-//             x = 800;
-//         } else if (x >= 800 && x < 1600) {
-//             x = 1600;
-//         } else if (x == 1600) {
-//             x = 0;
-//         }
-
-
-//     }
-// }
-// let slider = new Slider();
-// slider.run();
+let wrapper = new Wrapper('container', 10);
