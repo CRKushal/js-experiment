@@ -1,9 +1,11 @@
-var pipes = [];
-var score = 0;
-var gameOverMenu;
-var startGameMenu;
-var constant = 100;
-var gravity = 0.1;
+let pipes = [];
+let score = 0;
+let gameOverMenu;
+let startGameMenu;
+const GAP = 100;
+let gravity = 0.1;
+const GRAVITYINCREMENT = 0.05;
+const SPACEBAR = 32;
 
 /*
 *======================================================================================================================
@@ -26,11 +28,11 @@ class Bird {
     }
 
     update() {
-        gravity += 0.05;
+        gravity += GRAVITYINCREMENT;
         this.birdY += gravity;
-        var that = this;
+        let that = this;
         document.body.onkeyup = e => {
-            if (e.keyCode == 32) {
+            if (e.keyCode == SPACEBAR) {
                 (!(gravity > -2)) ? gravity -= 2 : gravity = -2;
             }
         }
@@ -54,14 +56,14 @@ class Pipe {
         this.pipeNorth = pipeNorth;
         this.context = context;
         this.pipesPos = pipesPos;
-        this.interval = 50;
+        this.INTERVAL = 50;
         this.canvas = canvas;
     }
 
     draw() {
         for (let i = 0; i < pipes.length; i++) {
             this.context.drawImage(this.pipeNorth, pipes[i].x, pipes[i].y);
-            this.context.drawImage(this.pipeSouth, pipes[i].x, pipes[i].y + (this.pipeNorth.height + constant));
+            this.context.drawImage(this.pipeSouth, pipes[i].x, pipes[i].y + (this.pipeNorth.height + GAP));
             this.update(i);
         }
     }
@@ -69,7 +71,7 @@ class Pipe {
     update(i) {
 
         pipes[i].x--;
-        if (pipes[i].x == this.interval) {
+        if (pipes[i].x == this.INTERVAL) {
             pipes.push({
                 x: this.canvas.clientWidth,
                 y: Math.floor((Math.random() * this.pipeNorth.height) - this.pipeNorth.height)
@@ -112,7 +114,6 @@ class Game {
     startGame() {
         this.gameOver = false;
         this.drawImages();
-
     }
 
     async drawImages() {
@@ -156,11 +157,11 @@ class Game {
     }
 
     detectCollison() {
-        var y = this.bird.birdY;
+        let y = this.bird.birdY;
         pipes.forEach(pipe => {
             if (this.birdX + this.birdImage.width >= pipe.x && this.birdX <= pipe.x + this.pipeNorthImage.width) {
                 if ((y <= pipe.y + this.pipeNorthImage.height ||
-                    y >= pipe.y + this.pipeNorthImage.height + constant) ||
+                    y + this.birdImage.height >= pipe.y + this.pipeNorthImage.height + GAP) ||
                     (y + this.birdImage.height > this.canvas.clientHeight - this.ground.height)) {
                     clearInterval(this.gameOn);
                     this.gameOver = true;
@@ -185,8 +186,8 @@ class Game {
 
     startGameMenu() {
         // startGameMenu = document.getElementById('gameStart');
-        // var playGameButton = document.getElementById('play-game');
-        // var that = this;
+        // let playGameButton = document.getElementById('play-game');
+        // let that = this;
         // playGameButton.addEventListener('click', function () {
         //     console.log('a')
         //     startGameMenu.style.visibility = "hidden";
@@ -197,8 +198,8 @@ class Game {
     gameOverMenuDisplay() {
         gameOverMenu = document.getElementById('gameOver');
         gameOverMenu.style.visibility = "visible";
-        var restart = document.getElementById('restart');
-        var scoreDisplay = document.getElementById('score');
+        let restart = document.getElementById('restart');
+        let scoreDisplay = document.getElementById('score');
         scoreDisplay.innerHTML = 'Score: ' + score;
 
         restart.addEventListener('click', function () {
