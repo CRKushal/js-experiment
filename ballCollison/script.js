@@ -1,10 +1,7 @@
 var ballsArray = [];
 
-var randomGenerator = (min, max) => {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
 function Game(ballsNumber, width, height) {
+
     this.ballsNumber = ballsNumber;
     this.width = width;
     this.height = height;
@@ -21,31 +18,39 @@ function Game(ballsNumber, width, height) {
 
     this.init = function () {
         for (var i = 0; i < this.ballsNumber; i++) {
-            var circle = {
-                x: randomGenerator(25, boundary.width - 20),
-                y: randomGenerator(25, boundary.height - 20),
-                radius: randomGenerator(8, 20),
-                color: "rgb(" + randomGenerator(20, 256) + "," + randomGenerator(20, 256) + "," + randomGenerator(20, 256) + ")"
-            }
+            do {
+                if (ballsArray[i] != null) {
+                    ballsArray[i].removeBall();
+                }
+                var circle = {
+                    x: randomGenerator(25, boundary.width - 20),
+                    y: randomGenerator(25, boundary.height - 20),
+                    radius: randomGenerator(8, 20),
+                    color: "rgb(" + randomGenerator(20, 256) + "," + randomGenerator(20, 256) + "," + randomGenerator(20, 256) + ")"
+                }
 
-            var player = new Ball(circle, boundary, box);
-            player.drawBall();
+                var player = new Ball(circle, boundary, box);
+                player.drawBall();
+                ballsArray.push(player);
 
-            ballsArray.push(player);
+            } while (player.collison());
         }
         setInterval(this.startGame, 10);
     }
 
     this.startGame = function () {
+
         for (var i = 0; i < ballsArray.length; i++) {
             ballsArray[i].moveBall();
             ballsArray[i].collison();
         }
     }
 }
-var game = new Game(20, 600, 600).init();
+
+var game = new Game(10, 600, 600).init();
 
 function Ball(circle, boundary, box) {
+
     this.x = circle.x;
     this.y = circle.y;
     this.width = circle.radius * 2;
@@ -55,7 +60,7 @@ function Ball(circle, boundary, box) {
     this.col = circle.color;
     this.radius = circle.radius;
 
-    this.speed = 1;
+    this.SPEED = 1;
     this.vel = 1;
     var dir = [-1, 1];
     this.Xdirection = dir[randomGenerator(0, 1)];
@@ -64,6 +69,7 @@ function Ball(circle, boundary, box) {
     var ball = document.createElement('div');
 
     this.drawBall = function () {
+
         this.box.appendChild(ball);
         ball.style.width = this.width + 'px';
         ball.style.height = this.height + 'px';
@@ -76,10 +82,11 @@ function Ball(circle, boundary, box) {
 
 
     this.moveBall = function () {
+
         ball.style.left = this.x + 'px';
         ball.style.top = this.y + 'px';
 
-        this.y += this.Ydirection * this.speed;
+        this.y += this.Ydirection * this.SPEED;
         this.x += this.Xdirection;
 
         if (this.x + this.height < 20 + this.height || this.x + this.height > boundary.height) {
@@ -91,24 +98,38 @@ function Ball(circle, boundary, box) {
     }
 
     this.collison = function () {
+
         for (var i = 0; i < ballsArray.length; i++) {
             if (this == ballsArray[i]) {
                 continue;
             }
+
             var other = ballsArray[i];
-            var distance = this.distance(other.x, other.y);
+            var distance = calculateDistance(other.x, other.y, this.x, this.y);
             if (this.radius + other.radius > distance) {
                 this.Xdirection = -this.Xdirection;
                 this.Ydirection = -this.Ydirection;
                 other.Xdirection = -other.Xdirection;
                 other.Ydirection = -other.Ydirection;
+                return true;
             }
         }
+        return false;
     }
-    this.distance = function (otherX, otherY) {
-        var dX = otherX - this.x;
-        var dY = otherY - this.y;
-        var dist = Math.sqrt((dX * dX) + (dY * dY));
-        return dist;
+
+    this.removeBall = function () {
+        this.box.removeChild(ball);
     }
+}
+
+
+function calculateDistance(otherX, otherY, thisX, thisY) {
+    var dX = otherX - thisX;
+    var dY = otherY - thisY;
+    var dist = Math.sqrt((dX * dX) + (dY * dY));
+    return dist;
+}
+
+function randomGenerator(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
 }
