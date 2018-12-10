@@ -92,7 +92,6 @@ class Word {
     }
 
     removeItem() {
-        console.log(this.mainSpan);
         document.getElementById('container').removeChild(this.mainSpan);
     }
 }
