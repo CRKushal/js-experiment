@@ -1,16 +1,42 @@
 #container{
     background: #424242;
-    width: 600px;
-    height: 600px;
+    width: 800px;
+    height: 300px;
+    margin:0 auto;
 }
 
 input{
-    width: 600px;
+    width: 661px;
     border: 2px solid rgb(75, 74, 74);
     margin-top: 5px;
     border-radius: 10px;
+    position: absolute;
+    right: 28%;
 }
 input::placeholder{
     padding:30px;
     font-size: 20px;
+}
+#keyboard{
+    background: #eaeaea;
+    width: 600px;
+    right: 100px;
+    position: absolute;
+    padding: 20px;
+    border: 1px solid #a9a9a9;
+    bottom: 50px;
+    right: 26%;
+}
+#keyboard span{
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    padding: 15px;
+    border: 1px solid #9a9a9a;
+    box-shadow:0 0 5px #999999;
+    background-color: #eaeaea;
+    margin: 7px;
+}
+.activeSpan{
+    background-color: blue;
 }

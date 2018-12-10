@@ -1,19 +1,19 @@
 class Word {
 
     constructor() {
-        this.x = randomGenerator(25, 550);
+        this.x = randomGenerator(300, 800);
         this.y = 10;
         this.letters;
         this.generateRandomWords();
         this.mainSpan = document.createElement('span');
         this.span;
         this.container = document.getElementById('container');
-        this.matchedLen = 0;
+        this.matchedLength = 0;
         this.childs = [];
     }
 
     generateRandomWords() {
-        let words = this.requiresWords();
+        let words = this.requiredWords();
         let index = randomGenerator(0, 11);
         let randomWords = words[index];
         this.letters = randomWords.split('');
@@ -38,7 +38,7 @@ class Word {
         this.mainSpan.style.top = this.y + 'px';
     }
 
-    requiresWords() {
+    requiredWords() {
         let words = [
             'hello',
             'hi',
@@ -58,13 +58,13 @@ class Word {
     }
 
     match(charToBeMatched) {
-        var c = charToBeMatched;
-        if (this.letters[this.matchedLen] == c) {
-            this.childs[this.matchedLen].classList.add('highlight');
-            this.matchedLen++;
-            for (let i = 0; i < this.matchedLen; i++) {
-                if (!this.childs[i].classList.contains('highlight')) {
-                    this.childs[i].classList.add('highlight');
+
+        if (this.letters[this.matchedLength] == charToBeMatched) {
+            this.childs[this.matchedLength].classList.add('active');
+            this.matchedLength++;
+            for (let i = 0; i < this.matchedLength; i++) {
+                if (!this.childs[i].classList.contains('active')) {
+                    this.childs[i].classList.add('active');
                 }
                 else {
                     break;
@@ -72,31 +72,34 @@ class Word {
             }
             return true;
         } else {
-            for (let i = 0; i < this.matchedLen; i++) {
-                this.childs[i].classList.remove('highlight');
+            for (let i = 0; i < this.matchedLength; i++) {
+                this.childs[i].classList.remove('active');
             }
             return false;
         }
     }
+
     matchAll() {
-        for (let i = 0; i < this.matchedLen; i++) {
-            this.childs[i].classList.add('highlight');
+        for (let i = 0; i < this.matchedLength; i++) {
+            this.childs[i].classList.add('active');
         }
     }
-    remove() {
-        this.container.removeChild(this.mainSpan);
+
+    erase() {
+        if (this.matchedLength == 0) { return; }
+        this.matchedLength--;
+        this.childs[this.matchedLength].classList.remove('active');
     }
-    eraseLastMatch() {
-        if (this.matchedLen == 0) {
-            return;
-        }
-        this.matchedLen--;
-        this.childs[this.matchedLen].classList.remove('highlight');
+
+    removeItem() {
+        console.log(this.mainSpan);
+        document.getElementById('container').removeChild(this.mainSpan);
     }
 }
 
 var that;
 class Game {
+
     constructor() {
         this.words = [];
         this.matchedWords = [];
@@ -106,13 +109,18 @@ class Game {
         this.matchedletters = false;
         that = this;
         this.gameLoop;
-
+        this.characters = [];
+        this.keySpan;
+        this.keyMap = {};
     }
 
     startGame() {
         let counter = 0;
 
+        this.drawKeyboard();
+
         document.addEventListener('keydown', this.inputController);
+
         this.gameLoop = setInterval(() => {
             counter++;
 
@@ -137,42 +145,81 @@ class Game {
             this.words.forEach(value => {
                 value.moveWords()
             });
-            if (this.words.length > 0 && this.words[0].y >= 600) {
+
+            if (this.words.length > 0 && this.words[0].y >= 300) {
+                console.log(this.words[0]);
                 this.gameOver();
             }
         }, 10);
     }
 
-    gameOver() {
-        clearInterval(this.gameLoop);
+    drawKeyboard() {
+        let keyboard = document.getElementById('keyboard');
+        let character = "qwertyuiopasdfghjklzxcvbnm";
+        let charArray = character.split("");
+        let container = document.getElementById('container');
+        for (let i = 0; i < charArray.length; i++) {
+            this.keySpan = document.createElement('span');
+            this.keySpan.innerHTML = charArray[i];
+            this.characters.push(charArray[i]);
+            this.keyMap[charArray[i]] = i;
+            keyboard.appendChild(this.keySpan);
+        }
+        container.appendChild(keyboard);
     }
 
-    inputController(e) {
-        let char = e.key;
-        console.log(e);
+    gameOver() {
+        clearInterval(this.gameLoop);
+
+    }
+
+    inputController(event) {
         let matched = false;
+        if (event.keyCode >= 65 && event.keyCode <= 90) {
+            var key = String.fromCharCode(97 + (event.keyCode - 65));
+            that.keyBoardHandler(key);
+            if (key) {
+                that.inputText += key;
+                that.input.value = that.inputText;
 
-        if (char) {
-            that.inputText += char;
-            that.input.value = that.inputText;
+                that.matchedWords = that.matchedWords.filter((val) => {
 
-            that.matchedWords = that.matchedWords.filter((val) => {
-                console.log(val);
-                let match = val.match(char);
-                if (val.matchedLen >= val.letters.length) {
-                    let index = that.words.indexOf(val);
-                    val.remove();
-                    matched = true;
-                    that.inputText = '';
-                }
-                return match;
+                    let match = val.match(key);
+                    if (val.matchedLength >= val.letters.length) {
+                        let index = that.words.indexOf(val);
+                        val.removeItem();
+
+                        var temp = that.words.indexOf(val);
+                        that.words.splice(temp, 1);
+
+                        matched = true;
+                        that.inputText = '';
+                    }
+                    return match;
+
+                });
+
                 if (matched) {
                     that.resetInput();
                 }
+            }
+        } else if (event.keyCode == 8) {
+            that.inputText = that.inputText.slice(0, -1);
+            that.input.value = that.inputText;
+            that.matchedWords.forEach(function (item, index) {
+                item.erase();
             });
-        } else if (e.keyCode == 8) {
-            return false;
+        } else {
+            console.log('not allowed');
         }
+    }
+
+    keyBoardHandler(key) {
+        var index = that.keyMap[key];
+        document.getElementById('keyboard').children[index].style.background = 'lightgreen';
+        setTimeout(function () {
+            document.getElementById('keyboard').children[index].style.background = 'none';
+        }, 100);
     }
 
     resetInput() {
@@ -180,8 +227,8 @@ class Game {
         that.input.value = that.inputText;
         that.matchedWords = [];
         for (let i = 0; i < that.words.length; i++) {
-            if (that.words[i].matchedLen > 0) {
-                that.word[i].eraseLastMatch();
+            while (that.words[i].matchedLength > 0) {
+                that.words[i].erase();
             }
             that.matchedWords.push(that.words[i]);
         }
